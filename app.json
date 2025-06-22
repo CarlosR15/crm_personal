@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "crm_personal",
-    "scheme":"crm_personal",
+    "scheme": "crm_personal",
     "slug": "crm_personal",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -21,13 +21,15 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.anonymous.crm_personal"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "expo-router"
+      "expo-router",
+      "expo-notifications"
     ]
   }
 }

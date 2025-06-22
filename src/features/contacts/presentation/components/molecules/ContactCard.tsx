@@ -1,27 +1,30 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { ContactAvatar } from '../atoms/ContactAvatar';
+import { useRouter } from 'expo-router';
+import { Pressable, Text, StyleSheet, View } from 'react-native';
 import { ContactEntity } from '../../../domain/entities/ContactEntity';
 
-export const ContactCard = ({ contact }: { contact: ContactEntity }) => (
-  <View style={styles.card}>
-    <ContactAvatar uri={contact.image} />
-    <Text style={styles.name}>{contact.name}</Text>
-  </View>
-);
+type Props = {
+  contact: ContactEntity;
+};
+
+export const ContactCard = ({ contact }: Props) => {
+  const router = useRouter();
+
+  return (
+    <Pressable onPress={() => router.push(`/contacts/${contact.id}`)} style={styles.card}>
+      <Text style={styles.name}>{contact.name}</Text>
+    </Pressable>
+  );
+};
 
 const styles = StyleSheet.create({
   card: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 12,
-    marginVertical: 4,
-    backgroundColor: '#f1f1f1',
+    padding: 16,
+    marginBottom: 12,
     borderRadius: 8,
+    backgroundColor: '#f0f0f0',
   },
   name: {
-    marginLeft: 12,
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: 'bold',
   },
 });
