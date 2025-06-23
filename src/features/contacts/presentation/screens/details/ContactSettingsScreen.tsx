@@ -24,14 +24,14 @@ export const ContactSettingsScreen = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.label}>Calificación de la relación:</Text>
-      <Text style={styles.score}>{rating} ⭐</Text>
+      <Text style={styles.score}>{rating} ⭐ </Text>
 
-      <Button title="Mejorar relación" onPress={() => setRating(rating + 1)} />
-      <Button title="Empeorar relación" onPress={() => setRating(Math.max(0, rating - 1))} />
+      <Button title="Agregar Estrellas" onPress={() => setRating(rating + 1)} />
+      <Button title="Quitar Estrellas" onPress={() => setRating(Math.max(0, rating - 1))} />
 
       <View style={styles.spacer} />
 
-      <Button title="Enviar recordatorio push" onPress={scheduleNotification} />
+      <Button title="Agendar recordatorio para llamar" onPress={scheduleNotification} />
     </View>
   );
 };
