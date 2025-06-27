@@ -1,14 +1,17 @@
 import React, { useEffect } from 'react';
 import { View, Text, Button, StyleSheet, Alert } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
 import { useContactDetailsViewModel } from '../../viewmodels/ContactDetailsViewModel';
 // import * as Notifications from 'expo-notifications';
 import { useAppDispatch, useAppSelector } from '../../../../../core/hooks/reduxHooks';
 import { requestNotificationPermission, scheduleNotification } from '../../../data/thunks/notificationsThunks';
 
-export const ContactSettingsScreen = () => {
-  const { id } = useLocalSearchParams();
-  const { rating, setRating, contact } = useContactDetailsViewModel(id as string);
+type Props = {
+  contactId: string;
+};
+
+export const ContactSettingsScreen = ({ contactId }: Props) => {
+  const { rating, setRating, contact } = useContactDetailsViewModel(contactId);
+  console.log(contact?.id, rating);
   
 
   // const scheduleNotification = async () => {

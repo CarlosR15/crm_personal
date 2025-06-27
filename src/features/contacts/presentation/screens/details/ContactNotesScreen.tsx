@@ -3,9 +3,14 @@ import { View, TextInput, Button, StyleSheet, Text } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { useContactDetailsViewModel } from '../../viewmodels/ContactDetailsViewModel';
 
+type Props = {
+  id: string;
+};
+
 export const ContactNotesScreen = () => {
   const { id } = useLocalSearchParams();
   const { note, setNote } = useContactDetailsViewModel(id as string);
+  console.log('[ContactDetailsMainScreen] Recibiendo id:', id);
 
    return (
     <View style={styles.container}>

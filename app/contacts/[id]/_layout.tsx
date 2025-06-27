@@ -1,7 +1,10 @@
 import { Tabs } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
 
 export default function ContactTabsLayout() {
+  const { id } = useLocalSearchParams();
+
   return (
     <Tabs screenOptions={{ tabBarActiveTintColor: 'green' }}>
       <Tabs.Screen
@@ -12,6 +15,7 @@ export default function ContactTabsLayout() {
             <MaterialIcons name="info" size={24} color={color} />
           ),
         }}
+        initialParams={{ id }}
       />
       <Tabs.Screen
         name="notes"
@@ -21,6 +25,7 @@ export default function ContactTabsLayout() {
             <MaterialIcons name="notes" size={24} color={color} />
           ),
         }}
+        initialParams={{ id }}
       />
       <Tabs.Screen
         name="settings"
@@ -30,6 +35,7 @@ export default function ContactTabsLayout() {
             <MaterialIcons name="settings" size={24} color={color} />
           ),
         }}
+        initialParams={{ id }}
       />
     </Tabs>
   );
