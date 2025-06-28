@@ -1,42 +1,184 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, StyleSheet, Text } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
-import { useContactDetailsViewModel } from '../../viewmodels/ContactDetailsViewModel';
+import { View, Text, TextInput, Button, FlatList, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { useContactNotesViewModel } from '../../viewmodels/ContactNotesViewModel';
 
 type Props = {
-  id: string;
+  contactId: string;
 };
 
-export const ContactNotesScreen = () => {
-  const { id } = useLocalSearchParams();
-  const { note, setNote } = useContactDetailsViewModel(id as string);
-  console.log('[ContactDetailsMainScreen] Recibiendo id:', id);
+export const ContactNotesScreen = ({ contactId }: Props) => {
+  const {
+    notes,
+    loading,
+    error,
+    currentNote,
+    setCurrentNote,
+    handleAddNote,
+    handleUpdateNote,
+    handleDeleteNote,
+    refresh,
+  } = useContactNotesViewModel(contactId);
 
-   return (
+  const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
+  const [editingNoteContent, setEditingNoteContent] = useState('');
+
+  const startEditing = (noteId: string, content: string) => {
+    setEditingNoteId(noteId);
+    setEditingNoteContent(content);
+  };
+
+  const cancelEditing = () => {
+    setEditingNoteId(null);
+    setEditingNoteContent('');
+  };
+
+  const saveEditing = async () => {
+    if (editingNoteId) {
+      await handleUpdateNote(editingNoteId, editingNoteContent);
+      cancelEditing();
+    }
+  };
+
+  if (loading && notes.length === 0) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.center}>
+        <Text style={styles.error}>{error}</Text>
+        <Button title="Retry" onPress={refresh} />
+      </View>
+    );
+  }
+
+  return (
     <View style={styles.container}>
-      <Text style={styles.label}>Notas para este contacto</Text>
-      <TextInput
-        style={styles.input}
-        value={note}
-        onChangeText={setNote}
-        placeholder="Ej: Tiene un perro que se llama Max"
-        multiline
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={styles.input}
+          placeholder="Add a new note..."
+          value={currentNote}
+          onChangeText={setCurrentNote}
+          multiline
+        />
+        <Button
+          title="Add Note"
+          onPress={handleAddNote}
+          disabled={!currentNote.trim()}
+        />
+      </View>
+
+      <FlatList
+        data={notes}
+        keyExtractor={item => item.id}
+        renderItem={({ item }) => (
+          <View style={styles.noteContainer}>
+            {editingNoteId === item.id ? (
+              <View style={styles.editContainer}>
+                <TextInput
+                  style={styles.editInput}
+                  value={editingNoteContent}
+                  onChangeText={setEditingNoteContent}
+                  multiline
+                />
+                <View style={styles.editButtons}>
+                  <Button title="Cancel" onPress={cancelEditing} />
+                  <Button
+                    title="Save"
+                    onPress={saveEditing}
+                    disabled={!editingNoteContent.trim()}
+                  />
+                </View>
+              </View>
+            ) : (
+              <>
+                <Text style={styles.noteContent}>{item.content}</Text>
+                <Text style={styles.noteDate}>
+                  {new Date(item.updatedAt).toLocaleString()}
+                </Text>
+                <View style={styles.noteActions}>
+                  <Button
+                    title="Edit"
+                    onPress={() => startEditing(item.id, item.content)}
+                  />
+                  <Button
+                    title="Delete"
+                    color="red"
+                    onPress={() => handleDeleteNote(item.id)}
+                  />
+                </View>
+              </>
+            )}
+          </View>
+        )}
       />
-      <Text style={styles.saved}>Nota guardada: {note}</Text>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { padding: 16 },
-  label: { fontSize: 16, marginBottom: 8 },
+  container: {
+    flex: 1,
+    padding: 16,
+  },
+  center: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  error: {
+    color: 'red',
+    marginBottom: 16,
+  },
+  inputContainer: {
+    marginBottom: 16,
+  },
   input: {
     borderWidth: 1,
     borderColor: '#ccc',
-    padding: 12,
-    borderRadius: 8,
-    minHeight: 80,
-    textAlignVertical: 'top',
+    borderRadius: 4,
+    padding: 8,
+    marginBottom: 8,
+    minHeight: 60,
   },
-  saved: { marginTop: 12, color: 'green' },
+  noteContainer: {
+    borderWidth: 1,
+    borderColor: '#eee',
+    borderRadius: 4,
+    padding: 12,
+    marginBottom: 12,
+  },
+  noteContent: {
+    fontSize: 16,
+    marginBottom: 8,
+  },
+  noteDate: {
+    fontSize: 12,
+    color: '#666',
+    marginBottom: 8,
+  },
+  noteActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  editContainer: {
+    marginBottom: 8,
+  },
+  editInput: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 4,
+    padding: 8,
+    marginBottom: 8,
+    minHeight: 60,
+  },
+  editButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+  },
 });

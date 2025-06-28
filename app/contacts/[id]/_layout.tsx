@@ -6,7 +6,7 @@ export default function ContactTabsLayout() {
   const { id } = useLocalSearchParams();
 
   return (
-    <Tabs screenOptions={{ tabBarActiveTintColor: 'green' }}>
+    <Tabs screenOptions={{ tabBarActiveTintColor: 'green', headerShown: false }}>
       <Tabs.Screen
         name="index"
         options={{
