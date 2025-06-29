@@ -10,6 +10,8 @@ export const useContactsViewModel = () => {
   const [error, setError] = useState<string | null>(null);
 
   const loadContacts = async () => {
+    setLoading(true);
+    setError(null);
     try {
       const data = await repository.getContacts();
       setContacts(data);
@@ -24,5 +26,5 @@ export const useContactsViewModel = () => {
     loadContacts();
   }, []);
 
-  return { contacts, loading, error };
+  return { contacts, loading, error, retry: loadContacts };
 };

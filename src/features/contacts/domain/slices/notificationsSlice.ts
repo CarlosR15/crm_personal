@@ -1,36 +1,28 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { requestNotificationPermission, scheduleNotification } from '../../data/thunks/notificationsThunks';
+import { requestNotificationPermission } from '../../data/thunks/notificationsThunks';
 
 type NotificationState = {
   permissionGranted: boolean;
-  scheduledIds: string[];
-  error?: string;
+  error: string | null;
 };
 
 const initialState: NotificationState = {
   permissionGranted: false,
-  scheduledIds: [],
+  error: null,
 };
 
 const notificationsSlice = createSlice({
   name: 'notifications',
   initialState,
   reducers: {},
-  extraReducers: (builder) => {
+  extraReducers: builder => {
     builder
       .addCase(requestNotificationPermission.fulfilled, (state) => {
         state.permissionGranted = true;
-        state.error = undefined;
+        state.error = null;
       })
       .addCase(requestNotificationPermission.rejected, (state, action) => {
         state.permissionGranted = false;
-        state.error = action.payload as string;
-      })
-      .addCase(scheduleNotification.fulfilled, (state, action) => {
-        state.scheduledIds.push(action.payload);
-        state.error = undefined;
-      })
-      .addCase(scheduleNotification.rejected, (state, action) => {
         state.error = action.payload as string;
       });
   },
