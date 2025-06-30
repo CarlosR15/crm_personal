@@ -10,33 +10,39 @@ export const useContactDetailsViewModel = (id: string) => {
   const [loading, setLoading] = useState(true);
   const [note, setNote] = useState('');
   const [rating, setRating] = useState(3);
-  if (!id) {
-    throw new Error("Contact ID is required");
-  }
+
+  const estimateInitialRating = (contact: ContactEntity): number => {
+    let score = 1;
+    if (contact.phoneNumbers && contact.phoneNumbers.length > 0) score += 1;
+    if (contact.emails && contact.emails.length > 0) score += 1;
+    if (contact.dates && contact.dates.length > 0) score += 1;
+    if ((contact.name ?? '').toLowerCase().includes('mamá') || (contact.name ?? '').toLowerCase().includes('papá')) score += 1;
+    return Math.min(score, 5);
+  };
+
   useEffect(() => {
     const loadContact = async () => {
-      try {
-        const all = await repository.getContacts();
-        const found = all.find(c => c.id === id);
-        if (found) setContact(found);
-      } finally {
-        setLoading(false);
-      }
-    };
+      const all = await repository.getContacts();
+      const found = all.find(c => c.id === id);
+      if (found) {
+        setContact(found);
 
-    console.log('Loading rating para ID:', id);
-    const loadRating = async () => {
-      const savedRating = await getRatingForContact(id);
-      setRating(savedRating);
+        const savedRating = await getRatingForContact(id);
+        if (savedRating === undefined || savedRating === null) {
+          const estimated = estimateInitialRating(found);
+          setRating(estimated);
+          await setRatingForContact(id, estimated);
+        } else {
+          setRating(savedRating);
+        }
+      }
+      setLoading(false);
     };
 
     loadContact();
-    loadRating();
   }, [id]);
 
-  const saveNote = (text: string) => {
-    setNote(text);
-  };
+  const saveNote = (text: string) => setNote(text);
 
   const updateRating = (value: number) => {
     setRating(value);

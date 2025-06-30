@@ -51,7 +51,7 @@ export const ContactNotesScreen = ({ contactId }: Props) => {
     return (
       <View style={styles.center}>
         <Text style={styles.error}>{error}</Text>
-        <Button title="Retry" onPress={refresh} />
+        <Button title="Reintentar" onPress={refresh} />
       </View>
     );
   }
@@ -61,13 +61,13 @@ export const ContactNotesScreen = ({ contactId }: Props) => {
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
-          placeholder="Add a new note..."
+          placeholder="Escribe una nota..."
           value={currentNote}
           onChangeText={setCurrentNote}
           multiline
         />
         <Button
-          title="Add Note"
+          title="Guardar Nota"
           onPress={handleAddNote}
           disabled={!currentNote.trim()}
         />
@@ -87,9 +87,9 @@ export const ContactNotesScreen = ({ contactId }: Props) => {
                   multiline
                 />
                 <View style={styles.editButtons}>
-                  <Button title="Cancel" onPress={cancelEditing} />
+                  <Button title="Cancelar" onPress={cancelEditing} />
                   <Button
-                    title="Save"
+                    title="Guardar"
                     onPress={saveEditing}
                     disabled={!editingNoteContent.trim()}
                   />
@@ -103,11 +103,11 @@ export const ContactNotesScreen = ({ contactId }: Props) => {
                 </Text>
                 <View style={styles.noteActions}>
                   <Button
-                    title="Edit"
+                    title="Editar"
                     onPress={() => startEditing(item.id, item.content)}
                   />
                   <Button
-                    title="Delete"
+                    title="Eliminar"
                     color="red"
                     onPress={() => handleDeleteNote(item.id)}
                   />

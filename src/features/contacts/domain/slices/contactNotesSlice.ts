@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { ContactNoteEntity } from "../entities/ContactNoteEntity";
 
 interface ContactNotesState {
-  notes: Record<string, ContactNoteEntity[]>; // {contactId: ContactNoteEntity[]}
+  notes: Record<string, ContactNoteEntity[]>;
   loading: boolean;
   error: string | null;
 }

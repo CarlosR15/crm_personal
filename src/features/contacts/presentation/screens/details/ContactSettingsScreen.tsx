@@ -18,7 +18,6 @@ export const ContactSettingsScreen = ({ contactId }: Props) => {
   const error = useAppSelector(state => state.notifications.error);
 
   const [date, setDate] = useState<Date>(new Date(Date.now() + 60 * 1000));
-  const [showPicker, setShowPicker] = useState(false);
   const [calendarGranted, setCalendarGranted] = useState<boolean | null>(null);
   const [calendarError, setCalendarError] = useState<string | null>(null);
 
@@ -66,7 +65,26 @@ export const ContactSettingsScreen = ({ contactId }: Props) => {
       },
     });
 
-    Alert.alert('✅ Notificación agendada', `Se notificará el ${date.toLocaleString()}`);
+    if (calendarGranted) {
+      try {
+        const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
+        const defaultCalendar = calendars.find(c => c.allowsModifications);
+
+        if (defaultCalendar) {
+          await Calendar.createEventAsync(defaultCalendar.id, {
+            title: `Llamar a ${contact?.name}`,
+            startDate: date,
+            endDate: new Date(date.getTime() + 15 * 60 * 1000),
+            timeZone: 'local',
+            notes: 'Recordatorio generado por la app',
+          });
+        }
+      } catch (err) {
+        console.error('Error creando evento en calendario:', err);
+      }
+    }
+
+    Alert.alert('✅ Recordatorio agendado', `Se notificará y se creó evento el ${date.toLocaleString()}`);
   };
 
   const onChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
