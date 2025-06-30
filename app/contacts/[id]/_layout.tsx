@@ -3,6 +3,7 @@ import { useLocalSearchParams } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
 
 export default function ContactTabsLayout() {
+  // se obtiene el parametro 'id' de la URL usando el hook useLocalSearchParams
   const { id } = useLocalSearchParams();
 
   return (
@@ -15,7 +16,7 @@ export default function ContactTabsLayout() {
             <MaterialIcons name="info" size={24} color={color} />
           ),
         }}
-        initialParams={{ id }}
+        initialParams={{ id }} // se pasa el id como parámetro inicial
       />
       <Tabs.Screen
         name="notes"
@@ -25,7 +26,7 @@ export default function ContactTabsLayout() {
             <MaterialIcons name="notes" size={24} color={color} />
           ),
         }}
-        initialParams={{ id }}
+        initialParams={{ id }} // se pasa el id como parámetro inicial
       />
       <Tabs.Screen
         name="settings"
@@ -35,7 +36,7 @@ export default function ContactTabsLayout() {
             <MaterialIcons name="settings" size={24} color={color} />
           ),
         }}
-        initialParams={{ id }}
+        initialParams={{ id }} // se pasa el id como parámetro inicial
       />
     </Tabs>
   );

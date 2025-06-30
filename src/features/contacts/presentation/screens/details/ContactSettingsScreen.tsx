@@ -8,24 +8,31 @@ import { useAppDispatch, useAppSelector } from '../../../../../core/hooks/reduxH
 import { requestNotificationPermission } from '../../../data/thunks/notificationsThunks';
 
 type Props = {
-  contactId: string;
+  contactId: string; // ID del contacto para configuraciones
 };
 
 export const ContactSettingsScreen = ({ contactId }: Props) => {
+  // Obtiene datos y funciones del ViewModel
   const { rating, setRating, contact } = useContactDetailsViewModel(contactId);
+
+  // Redux hooks para permisos de notificación
   const dispatch = useAppDispatch();
   const permissionGranted = useAppSelector(state => state.notifications.permissionGranted);
   const error = useAppSelector(state => state.notifications.error);
 
-  const [date, setDate] = useState<Date>(new Date(Date.now() + 60 * 1000));
+  // Estados para calendario y fecha seleccionada
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [selectedTime, setSelectedTime] = useState<Date>(new Date());
   const [calendarGranted, setCalendarGranted] = useState<boolean | null>(null);
   const [calendarError, setCalendarError] = useState<string | null>(null);
 
+  // Efecto para solicitar permisos al montar el componente
   useEffect(() => {
     dispatch(requestNotificationPermission());
     requestCalendarPermission();
   }, []);
 
+  // Solicita permisos para acceder al calendario
   const requestCalendarPermission = async () => {
     try {
       const { status } = await Calendar.requestCalendarPermissionsAsync();
@@ -42,17 +49,32 @@ export const ContactSettingsScreen = ({ contactId }: Props) => {
     }
   };
 
+  // Reintenta obtener todos los permisos necesarios
   const retryPermissions = () => {
     dispatch(requestNotificationPermission());
     requestCalendarPermission();
   };
 
+  // Combina la fecha y hora seleccionadas en un solo objeto Date
+  const getCombinedDateTime = () => {
+    const date = new Date(selectedDate);
+    date.setHours(selectedTime.getHours());
+    date.setMinutes(selectedTime.getMinutes());
+    date.setSeconds(0);
+    date.setMilliseconds(0);
+    return date;
+  };
+
+  // Agenda una notificación y evento de calendario
   const handleScheduleNotification = async () => {
+    const dateTime = getCombinedDateTime();
+
     if (!permissionGranted) {
       Alert.alert('Permiso no concedido', 'Activa las notificaciones en los ajustes.');
       return;
     }
 
+    // Agenda notificación
     await Notifications.scheduleNotificationAsync({
       content: {
         title: `Recordatorio: Llamar a ${contact?.name ?? 'Contacto'}`,
@@ -60,11 +82,12 @@ export const ContactSettingsScreen = ({ contactId }: Props) => {
         sound: 'default',
       },
       trigger: {
+        date: dateTime,
         type: Notifications.SchedulableTriggerInputTypes.DATE,
-        date
       },
     });
 
+    // Crea evento en calendario si tiene permisos
     if (calendarGranted) {
       try {
         const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
@@ -73,8 +96,8 @@ export const ContactSettingsScreen = ({ contactId }: Props) => {
         if (defaultCalendar) {
           await Calendar.createEventAsync(defaultCalendar.id, {
             title: `Llamar a ${contact?.name}`,
-            startDate: date,
-            endDate: new Date(date.getTime() + 15 * 60 * 1000),
+            startDate: dateTime,
+            endDate: new Date(dateTime.getTime() + 15 * 60 * 1000),
             timeZone: 'local',
             notes: 'Recordatorio generado por la app',
           });
@@ -84,42 +107,59 @@ export const ContactSettingsScreen = ({ contactId }: Props) => {
       }
     }
 
-    Alert.alert('✅ Recordatorio agendado', `Se notificará y se creó evento el ${date.toLocaleString()}`);
+    Alert.alert('✅ Recordatorio agendado', `Se notificará y se creó evento el ${dateTime.toLocaleString()}`);
   };
 
-  const onChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
-    if (event.type === 'set' && selectedDate) {
-      setDate(selectedDate);
-    }
-  };
-
+  // Selector de fecha/hora
   const showDatePicker = () => {
     DateTimePickerAndroid.open({
-      value: date,
+      value: selectedDate,
       mode: 'date',
       is24Hour: true,
-      onChange: (event, selectedDate) => {
-        if (event.type === 'set' && selectedDate) {
-          setDate(selectedDate);
+      minimumDate: new Date(),
+      onChange: (event, date) => {
+        if (event.type === 'set' && date) {
+          setSelectedDate(date);
         }
       },
-      minimumDate: new Date(),
+    });
+  };
+
+  // Muestra el selector de hora
+  const showTimePicker = () => {
+    DateTimePickerAndroid.open({
+      value: selectedTime,
+      mode: 'time',
+      is24Hour: true,
+      onChange: (event, time) => {
+        if (event.type === 'set' && time) {
+          setSelectedTime(time);
+        }
+      },
     });
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.label}>Calificación de la relación:</Text>
-      <Text style={styles.score}>{rating} ⭐ </Text>
+      <Text style={styles.score}>{rating} ⭐</Text>
 
       <Button title="Agregar Estrellas" onPress={() => setRating(rating + 1)} />
       <Button title="Quitar Estrellas" onPress={() => setRating(Math.max(0, rating - 1))} />
 
       <View style={styles.spacer} />
 
-      <Text style={styles.label}>Fecha y hora del recordatorio:</Text>
-      <Text>{date.toLocaleString()}</Text>
-      <Button title="Elegir fecha y hora" onPress={showDatePicker} />
+      <Text style={styles.label}>Fecha seleccionada:</Text>
+      <Text>{selectedDate.toLocaleDateString()}</Text>
+      <Button title="Elegir fecha" onPress={showDatePicker} />
+
+      <View style={styles.spacer} />
+
+      <Text style={styles.label}>Hora seleccionada:</Text>
+      <Text>{selectedTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
+      <Button title="Elegir hora" onPress={showTimePicker} />
+
+      <View style={styles.spacer} />
 
       <Button title="Agendar recordatorio para llamar" onPress={handleScheduleNotification} />
 

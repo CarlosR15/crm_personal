@@ -4,9 +4,17 @@ import { useContactsViewModel } from '../viewmodels/ContactsViewModel';
 import { ContactCard } from '../components/molecules/ContactCard';
 
 export const ContactsScreen = () => {
-  const { contacts, loading, error, retry } = useContactsViewModel();
-
+  // Obtiene datos y funciones del ViewModel
+  const { 
+    contacts,  // Lista de contactos
+    loading,   // Estado de carga
+    error,     // Mensaje de error (si existe)
+    retry      // Función para reintentar carga
+  } = useContactsViewModel();
+// Estado de carga - muestra spinner
   if (loading) return <ActivityIndicator style={styles.centered} />;
+
+  // Estado de error - muestra mensaje y botón de reintentoif (loading) return <ActivityIndicator style={styles.centered} />;
   if (error) {
     return (
       <View style={styles.centered}>
@@ -15,7 +23,7 @@ export const ContactsScreen = () => {
       </View>
     );
   }
-
+  // Estado normal - muestra lista de contactos
   return (
     <FlatList
       contentContainerStyle={styles.list}

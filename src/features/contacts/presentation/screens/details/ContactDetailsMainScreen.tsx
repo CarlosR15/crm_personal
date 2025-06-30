@@ -4,13 +4,15 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useContactDetailsViewModel } from '../../viewmodels/ContactDetailsViewModel';
 
 type Props = {
-  id: string;
+  id: string; // ID del contacto que se va a mostrar
 };
 
 export const ContactDetailsMainScreen = ({ id }: Props) => {
+  // Obtiene los datos del contacto y estado de carga del ViewModel
   const { contact, loading } = useContactDetailsViewModel(id);
-  console.log('[ContactDetailsMainScreen] Recibiendo id:', id);
+  console.log('[ContactDetailsMainScreen] Recibiendo id:', id); // Log para debugging
 
+  // Estados de carga y error
   if (loading) return <ActivityIndicator style={styles.centered} />;
   if (!contact) return <Text style={styles.centered}>Contacto no encontrado</Text>;
 
@@ -39,6 +41,7 @@ export const ContactDetailsMainScreen = ({ id }: Props) => {
   );
 };
 
+// Estilos de la pantalla
 const styles = StyleSheet.create({
   container: {
     padding: 16,

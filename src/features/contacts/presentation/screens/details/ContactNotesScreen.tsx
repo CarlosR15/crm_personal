@@ -3,35 +3,40 @@ import { View, Text, TextInput, Button, FlatList, StyleSheet, TouchableOpacity, 
 import { useContactNotesViewModel } from '../../viewmodels/ContactNotesViewModel';
 
 type Props = {
-  contactId: string;
+  contactId: string; // ID del contacto al que pertenecen las notas
 };
 
 export const ContactNotesScreen = ({ contactId }: Props) => {
+  // Obtiene datos y funciones del ViewModel
   const {
-    notes,
-    loading,
-    error,
-    currentNote,
-    setCurrentNote,
-    handleAddNote,
-    handleUpdateNote,
-    handleDeleteNote,
-    refresh,
+    notes,               // Lista de notas del contacto
+    loading,            // Estado de carga
+    error,              // Mensaje de error
+    currentNote,        // Nota actual siendo escrita
+    setCurrentNote,     // Actualiza la nota actual
+    handleAddNote,      // Función para agregar nota
+    handleUpdateNote,   // Función para actualizar nota
+    handleDeleteNote,   // Función para eliminar nota
+    refresh,            // Función para recargar notas
   } = useContactNotesViewModel(contactId);
 
+  // Estados para manejar la edición
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
   const [editingNoteContent, setEditingNoteContent] = useState('');
 
+  // Inicia el modo edición para una nota específica
   const startEditing = (noteId: string, content: string) => {
     setEditingNoteId(noteId);
     setEditingNoteContent(content);
   };
 
+  // Cancela el modo edición
   const cancelEditing = () => {
     setEditingNoteId(null);
     setEditingNoteContent('');
   };
 
+  // Guarda los cambios de una nota editada
   const saveEditing = async () => {
     if (editingNoteId) {
       await handleUpdateNote(editingNoteId, editingNoteContent);
@@ -39,6 +44,7 @@ export const ContactNotesScreen = ({ contactId }: Props) => {
     }
   };
 
+  // Estados de carga y error
   if (loading && notes.length === 0) {
     return (
       <View style={styles.center}>
